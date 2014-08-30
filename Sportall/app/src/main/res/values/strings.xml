@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+   <string name="app_name">Sportall</string>
+    <string name="title_section1">Inbox</string>
+    <string name="title_section2">Friends</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="username_hint">Username</string>
+    <string name="password_hint">Password</string>
+    <string name="login_button_label">Login</string>
+    <string name="sign_up_text">Sign Up!</string>
+    <string name="title_activity_sign_up">SignUpActivity</string>
+    <string name="email_hint">Email</string>
+    <string name="sign_up_button_label">Sign Up!</string>
+    <string name="sign_up_error_message_title">Oops!</string>
+    <string name="sign_up_error_message">Please make sure you enter username, password, and email address!</string>
+    <string name="login_error_message_title">Oops!</string>
+    <string name="login_error_message">Please make sure you enter username and password!</string>
+    <string name="menu_logout_label">Logout</string>
+    <string name="empty_inbox_label">No new messages!</string>
+    <string name="empty_friends_label">Add friends to begin!</string>
+    <string name="menu_edit_friends_label">Edit Friends</string>
+    <string name="title_activity_edit_friends">Edit Friends</string>
+    <string name="error_title">Opps!</string>
+    
+    
+    
+    <string name="circles_title">Visible circles:</string>
+    <string name="sign_out_button_name">Sign out</string>
+    <string name="revoke_access_button_name">Revoke</string>
+
+    <string name="status_sign_in_required">Sign-in required</string>
+    <string name="status_sign_in_error">Error signing in: %s</string>
+    <string name="status_loading">Loading…</string>
+    <string name="status_signing_in">Signing in with Google+…</string>
+    <string name="status_signed_out">Signed out</string>
+    <string name="status_revoke_access">Revoked access</string>
+    <string name="status_revoke_access_error">Error revoking access: %s</string>
+    <string name="signed_in_as">Signed in as %s</string>
+    
+    <!-- Used if there was an error loading the signed in user's name. -->
+    <string name="unknown_person">Unknown</string>
+    <string name="play_services_error">Google Play services is not available.  This application will close.</string>
+    <string name="close">Close</string>
+    <string name="profile_picture">User\'s profile picture.</string>
+    
+    
+    <string-array name="country_array">
+        <item>Denmark</item>
+        <item>Faroe Islands</item>
+        <item>Finland</item>
+        <item>Iceland</item>
+        <item>Norway</item>
+        <item>Svalbard and Jan Mayen</item>
+        <item>Sweden</item>
+    </string-array>
+    <string name="animal_prompt">Choose your favorite animal</string>
+    
+
+</resources>

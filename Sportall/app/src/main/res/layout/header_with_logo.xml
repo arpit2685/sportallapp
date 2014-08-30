@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:background="#1a237e"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp">
+    
+    <!-- android:background="#1a237e"  -->
+    <!--android:background="@android:color/transparent"  -->
+
+    <!-- Menu Icon  -->
+    <ImageView
+        android:id="@+id/menuicon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:contentDescription="left menu"
+        android:onClick="showSlidingMenu"
+        android:src="@drawable/menu"
+    />
+     <!-- Search Icon  -->
+    
+    <!-- App Logo -->
+    
+    
+     <!-- Search Bar Layout -->
+    <RelativeLayout 
+        android:id="@+id/search_layout"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+     	android:layout_centerHorizontal="true"
+     	android:layout_centerVertical="true"
+     	android:gravity="center_vertical"
+     	android:paddingLeft="5dp"
+     	android:paddingRight="5dp"
+     	android:visibility="gone"
+     >
+     	
+    </RelativeLayout>
+	
+     <!-- Contact Us Icon  -->
+    <ImageView
+        android:id="@+id/btn_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:contentDescription="editprofile"
+        android:onClick="contactus"
+        android:src="@drawable/editor"
+    />
+    
+    <!-- Share Icon  -->
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@+id/menuicon"
+        android:layout_centerHorizontal="true"
+        android:text="User Profile"
+        android:textColor="@android:color/white"
+        android:textSize="15sp" />
+
+    </RelativeLayout>
