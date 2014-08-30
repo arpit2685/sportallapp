@@ -97,7 +97,7 @@
         android:layout_marginTop="10dp"
         android:orientation="horizontal" >
 
-        <com.pkmmte.circularimageview.CircularImageView
+        <com.sportall.app.views.CircularImageView
             android:id="@+id/img2"
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -143,7 +143,7 @@
         android:layout_height="70dp"
         android:orientation="horizontal" >
 
-        <com.pkmmte.circularimageview.CircularImageView
+        <com.sportall.app.views.CircularImageView
             android:id="@+id/img3"
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -188,7 +188,7 @@
         android:layout_height="70dp"
         android:orientation="horizontal" >
 
-        <com.pkmmte.circularimageview.CircularImageView
+        <com.sportall.app.views.CircularImageView
             android:id="@+id/img4"
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -232,7 +232,7 @@
         android:layout_height="70dp"
         android:orientation="horizontal" >
 
-        <com.pkmmte.circularimageview.CircularImageView
+        <com.sportall.app.views.CircularImageView
             android:id="@+id/img5"
             android:layout_width="50dp"
             android:layout_height="50dp"
