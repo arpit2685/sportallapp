@@ -45,15 +45,15 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp">
 
             <TextView
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
                 android:layout_weight="1"
+                android:layout_marginLeft="5dp"
                 android:text="Name:"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -62,9 +62,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="8"
-                android:gravity="center_horizontal"
-                android:hint=""
                 android:text=""
+                android:hint=""
+                android:gravity="center_horizontal"
                 android:textColor="@android:color/black" />
 
         </LinearLayout>
@@ -73,25 +73,26 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp">
 
             <TextView
                 android:id="@+id/textView3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
                 android:layout_weight="1"
+                android:layout_marginLeft="5dp"
                 android:text="Email:"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
-                android:id="@+id/use"
+                android:id="@+id/user_email"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="8"
-                android:gravity="center_horizontal"
                 android:text=""
+                android:inputType="textEmailAddress"
+                android:gravity="center_horizontal"
                 android:textColor="@android:color/black" />
 
         </LinearLayout>
@@ -99,17 +100,15 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal" 
+            android:layout_marginTop="5dp">
 
-            <EditText
-                android:id="@+id/user_email"
+            <Spinner
+                android:id="@+id/spinner4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_horizontal"
-                android:text=""
-                />
+                android:layout_weight="1" 
+               />
 
         </LinearLayout>
         
@@ -117,23 +116,23 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp">
 
             <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginTop="5dp"
-            android:orientation="horizontal">
+            android:layout_marginTop="5dp">
 
             <ImageView
                 android:id="@+id/location"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:src="@drawable/location"/>
+                android:src="@drawable/location" 
+                android:layout_margin="5dp"/>
             
             <Spinner
         android:id="@+id/spinner1"

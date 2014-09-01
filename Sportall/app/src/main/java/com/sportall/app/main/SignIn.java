@@ -1,5 +1,7 @@
 package com.sportall.app.main;
 
+import java.io.InputStream;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
@@ -8,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -16,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.sportall.app.main.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.SignInButton;
@@ -27,8 +31,6 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 
-import java.io.InputStream;
-
 public class SignIn extends Activity implements OnClickListener,
 		ConnectionCallbacks, OnConnectionFailedListener {
 
@@ -38,24 +40,31 @@ public class SignIn extends Activity implements OnClickListener,
 
 	// Profile pic image size in pixels
 	private static final int PROFILE_PIC_SIZE = 400;
-	String personPhotoUrl;
-	String personName;
-	String email;
+
 	// Google client to interact with Google API
 	private GoogleApiClient mGoogleApiClient;
+
 	/**
 	 * A flag indicating that a PendingIntent is in progress and prevents us
 	 * from starting further intents.
 	 */
 	private boolean mIntentInProgress;
+
 	private boolean mSignInClicked;
+
 	private ConnectionResult mConnectionResult;
+
 	private SignInButton btnSignIn;
 	private Button btnSignOut, btnRevokeAccess;
 	private ImageView imgProfilePic;
 	private TextView txtName, txtEmail;
 	private LinearLayout llProfileLayout;
 	
+	String personPhotoUrl;
+	String personName;
+	String email;
+	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -76,8 +85,7 @@ public class SignIn extends Activity implements OnClickListener,
 
 		mGoogleApiClient = new GoogleApiClient.Builder(this)
 				.addConnectionCallbacks(this)
-				.addOnConnectionFailedListener(this)
-                .addApi(Plus.API)
+				.addOnConnectionFailedListener(this).addApi(Plus.API, null)
 				.addScope(Plus.SCOPE_PLUS_LOGIN).build();
 	}
 
@@ -163,6 +171,7 @@ public class SignIn extends Activity implements OnClickListener,
 		intent.putExtra("user_name", personName);
 		intent.putExtra("user_email", email);
 		startActivity(intent);
+		finish();
 		//updateUI(true);
 
 	}
@@ -228,7 +237,12 @@ public class SignIn extends Activity implements OnClickListener,
 		updateUI(false);
 	}
 
-
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
 
 	/**
 	 * Button on click listener

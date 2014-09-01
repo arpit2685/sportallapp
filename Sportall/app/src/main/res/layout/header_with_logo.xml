@@ -11,13 +11,13 @@
 
     <!-- Menu Icon  -->
     <ImageView
-        android:id="@+id/menuicon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
+        android:src="@drawable/menu" 
         android:contentDescription="left menu"
+        android:layout_centerVertical="true"
+        android:id="@+id/menuicon"
         android:onClick="showSlidingMenu"
-        android:src="@drawable/menu"
     />
      <!-- Search Icon  -->
     
@@ -26,29 +26,29 @@
     
      <!-- Search Bar Layout -->
     <RelativeLayout 
-        android:id="@+id/search_layout"
         android:layout_width="160dp"
         android:layout_height="wrap_content"
-     	android:layout_centerHorizontal="true"
-     	android:layout_centerVertical="true"
-     	android:gravity="center_vertical"
-     	android:paddingLeft="5dp"
+        android:layout_centerHorizontal="true"
+     	android:paddingLeft="5dp" 
      	android:paddingRight="5dp"
+     	android:gravity="center_vertical"
+     	android:layout_centerVertical="true"
      	android:visibility="gone"
+     	android:id="@+id/search_layout"
      >
      	
     </RelativeLayout>
 	
      <!-- Contact Us Icon  -->
     <ImageView
-        android:id="@+id/btn_edit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
+        android:src="@drawable/ic_menu_edit" 
         android:contentDescription="editprofile"
-        android:onClick="contactus"
-        android:src="@drawable/editor"
+        android:layout_alignParentRight="true"
+        android:id="@+id/btn_edit"
+        android:layout_centerVertical="true"
+        android:onClick="editprofile"
     />
     
     <!-- Share Icon  -->
@@ -61,7 +61,7 @@
         android:layout_alignTop="@+id/menuicon"
         android:layout_centerHorizontal="true"
         android:text="User Profile"
-        android:textColor="@android:color/white"
-        android:textSize="15sp" />
+        android:textSize="15sp"
+        android:textColor="@android:color/white" />
 
     </RelativeLayout>
