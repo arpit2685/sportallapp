@@ -24,9 +24,10 @@
     <string name="menu_edit_friends_label">Edit Friends</string>
     <string name="title_activity_edit_friends">Edit Friends</string>
     <string name="error_title">Opps!</string>
+        <string name="signout_slider">Signout</string>
     
     
-    
+    <string name="sign_out">Sign Out</string>
     <string name="circles_title">Visible circles:</string>
     <string name="sign_out_button_name">Sign out</string>
     <string name="revoke_access_button_name">Revoke</string>
@@ -47,16 +48,47 @@
     <string name="profile_picture">User\'s profile picture.</string>
     
     
-    <string-array name="country_array">
-        <item>Denmark</item>
-        <item>Faroe Islands</item>
-        <item>Finland</item>
-        <item>Iceland</item>
-        <item>Norway</item>
-        <item>Svalbard and Jan Mayen</item>
-        <item>Sweden</item>
-    </string-array>
-    <string name="animal_prompt">Choose your favorite animal</string>
     
+    
+     <string name="drawer_open">Slider Menu Opened</string>
+    <string name="drawer_close">Slider Menu Closed</string>
+    
+    
+     <string-array name="nav_drawer_items">
+        <item >Home</item>
+        <item >Find People</item>
+        <item >Photos</item>
+        <item >Communities</item>
+        <item >Pages</item>
+        <item >What\'s Hot</item>
+    </string-array>
+    
+    <!-- Nav Drawer List Item Icons -->
+    <!-- Keep them in order as the titles are in -->
+    <array name="nav_drawer_icons">
+        <item>@drawable/ic_launcher</item>
+        <item>@drawable/ic_launcher</item>
+        <item>@drawable/ic_launcher</item>
+        <item>@drawable/ic_launcher</item>
+        <item>@drawable/ic_launcher</item>
+        <item>@drawable/ic_launcher</item>
+    </array>
+    
+    <!-- Content Description -->
+    <string name="desc_list_item_icon">Item Icon</string>
+    
+    <!--Slider String   -->
+    <string name="feedback">Feedback</string>
+    <string name="profile">Profile</string>
+    <string name="search_athlete">Search Athletes</string>
+    <string name="send_invitation">Send Invitation</string>
+    <string name="invites">Invites</string>
+    <string name="rank_table">Rank Table</string>
+    
+    <!--profile  -->
+
+	    <string name="profile_city">City</string>
+	    <string name="profile_state">State</string>
+	    <string name="profile_country">Country</string>
 
 </resources>

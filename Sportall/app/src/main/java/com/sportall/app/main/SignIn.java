@@ -1,9 +1,13 @@
 package com.sportall.app.main;
 
 import java.io.InputStream;
+import java.util.List;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.IntentSender.SendIntentException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,6 +23,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.sportall.app.main.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -42,17 +51,18 @@ public class SignIn extends Activity implements OnClickListener,
 	private static final int PROFILE_PIC_SIZE = 400;
 
 	// Google client to interact with Google API
-	private GoogleApiClient mGoogleApiClient;
+	//private GoogleApiClient mGoogleApiClient;
+	public GoogleApiClient mGoogleApiClient;
 
 	/**
 	 * A flag indicating that a PendingIntent is in progress and prevents us
 	 * from starting further intents.
 	 */
-	private boolean mIntentInProgress;
+	public boolean mIntentInProgress;
 
-	private boolean mSignInClicked;
+	public boolean mSignInClicked;
 
-	private ConnectionResult mConnectionResult;
+	public ConnectionResult mConnectionResult;
 
 	private SignInButton btnSignIn;
 	private Button btnSignOut, btnRevokeAccess;
@@ -60,16 +70,50 @@ public class SignIn extends Activity implements OnClickListener,
 	private TextView txtName, txtEmail;
 	private LinearLayout llProfileLayout;
 	
+	public static final String PREFS_NAME = "LoginPrefs";
+	public static final String PREFS_STATUS = "firsttimePrefs";
+	public static final String PREF_GOOGLE = "google_pref";
+	
+	
+	//SharedPreferences settings;
+	SharedPreferences firsttimelogin;
+	boolean clicklogout;
+	
 	String personPhotoUrl;
 	String personName;
 	String email;
+	String location;
+	String google_id;
+	String sports;
+	
+	private boolean googleLogout;
+	private boolean firsttime = false;
+	private ParseObject login_data;
+	
+	
 	
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.test_signin);
-
+		
+		if(getIntent().getExtras() != null && getIntent().getExtras().containsKey("user_logout"))
+			googleLogout = getIntent().getExtras().getBoolean("user_logout");
+		
+		/**
+		 *  Check if we successfully logged in before. 
+         * If we did, redirect to profile page
+	     */
+		
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+		if (settings.getString("logged", "").toString().equals("logged")) {
+			Intent intent = new Intent(SignIn.this, Profile.class);
+			startActivity(intent);
+		}
+		 
+	
+		
 		btnSignIn = (SignInButton) findViewById(R.id.btn_sign_in);
 		btnSignOut = (Button) findViewById(R.id.btn_sign_out);
 		btnRevokeAccess = (Button) findViewById(R.id.btn_revoke_access);
@@ -82,42 +126,57 @@ public class SignIn extends Activity implements OnClickListener,
 		btnSignIn.setOnClickListener(this);
 		btnSignOut.setOnClickListener(this);
 		btnRevokeAccess.setOnClickListener(this);
-
+		
+		Log.v("LogOut Flag", "googleLogout "+googleLogout);
 		mGoogleApiClient = new GoogleApiClient.Builder(this)
 				.addConnectionCallbacks(this)
 				.addOnConnectionFailedListener(this).addApi(Plus.API, null)
 				.addScope(Plus.SCOPE_PLUS_LOGIN).build();
+		
 	}
 
-	protected void onStart() {
+	public void onStart() {
 		super.onStart();
 		mGoogleApiClient.connect();
+		
 	}
 
-	protected void onStop() {
+	public void onStop() {
 		super.onStop();
 		if (mGoogleApiClient.isConnected()) {
 			mGoogleApiClient.disconnect();
+			mGoogleApiClient.connect();
+			
 		}
+		
 	}
 
 	/**
 	 * Method to resolve any signin errors
 	 * */
-	private void resolveSignInError() {
-		if (mConnectionResult.hasResolution()) {
-			try {
-				mIntentInProgress = true;
-				mConnectionResult.startResolutionForResult(this, RC_SIGN_IN);
-				/*Intent intent = new Intent(SignIn.this,Profile.class);
-				startActivity(intent);*/
-			} catch (SendIntentException e) {
-				mIntentInProgress = false;
-				mGoogleApiClient.connect();
+	public void resolveSignInError() {
+		
+		try{
+			if (mConnectionResult != null && mConnectionResult.hasResolution()) {
+				try {
+					mIntentInProgress = true;
+					mConnectionResult.startResolutionForResult(this, RC_SIGN_IN);
+				} catch (SendIntentException e) {
+					mIntentInProgress = false;
+					mGoogleApiClient.connect();
+				}
 			}
+			else
+				mGoogleApiClient.connect();
+		}catch(Exception e){
+			e.printStackTrace();
+			
+			
 		}
+		
 	}
 
+	
 	@Override
 	public void onConnectionFailed(ConnectionResult result) {
 		if (!result.hasResolution()) {
@@ -131,9 +190,7 @@ public class SignIn extends Activity implements OnClickListener,
 			mConnectionResult = result;
 
 			if (mSignInClicked) {
-				// The user has already clicked 'sign-in' so we attempt to
-				// resolve all
-				// errors until the user is signed in, or they cancel.
+				
 				resolveSignInError();
 			}
 		}
@@ -141,7 +198,7 @@ public class SignIn extends Activity implements OnClickListener,
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int responseCode,
+	public void onActivityResult(int requestCode, int responseCode,
 			Intent intent) {
 		if (requestCode == RC_SIGN_IN) {
 			if (responseCode != RESULT_OK) {
@@ -155,27 +212,95 @@ public class SignIn extends Activity implements OnClickListener,
 			}
 		}
 	}
+	
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		mGoogleApiClient.connect();
+	}
+	
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onConnected(Bundle arg0) {
-		mSignInClicked = false;
-		Toast.makeText(this, "User is connected!", Toast.LENGTH_LONG).show();
-
-		// Get user's information
-		getProfileInformation();
-
-		// Update the UI after signin
 		
-		Intent intent = new Intent(this, Profile.class);
-		intent.putExtra("user_image_url", personPhotoUrl);
-		intent.putExtra("user_name", personName);
-		intent.putExtra("user_email", email);
-		startActivity(intent);
-		finish();
-		//updateUI(true);
+		if(!googleLogout && mSignInClicked){
+			mSignInClicked = false;
+			Toast.makeText(this, "User is connected!", Toast.LENGTH_LONG).show();
+			
+			SharedPreferences settings = this.getSharedPreferences(PREFS_NAME, 0);
+			SharedPreferences.Editor edt = settings.edit();
+			edt.putString("logged", "logged");
+			edt.commit();
+			
+			getProfileInformation();
+	
+			
+			
+		}
+		else if(googleLogout){
+			signOutFromGplus();
+			mGoogleApiClient.disconnect();
+			googleLogout = false;
+		}
 
 	}
+	
+	
+	/**
+	 * If user information will retrive from the google+
+	 * then check the g+id is available or not
+	 * if not then store it to parse database else retrive all data
+	 */
+	private void saveUserData(){
+		 
+		 ParseQuery<ParseObject> query = ParseQuery.getQuery("UserData");
+		 query.whereEqualTo("user_google_id", google_id.trim());
+		 Log.v(TAG, "query "+query.toString()+" "+google_id);
+		 
+		 
+		 query.getFirstInBackground(new GetCallback<ParseObject>() {
+		   public void done(ParseObject login_data, ParseException e) {
+		     if (login_data == null) {
+		       Log.d("Data", "The getFirst request failed."+e.getCode());
+		       savetoparse();
+		       openProfile();
+		       
+		     } else {
+			    	
+			    	String test_google_id = login_data.getString("user_google_id");
+			    	Log.v("Check reterieved data", test_google_id);
+			    	personPhotoUrl = login_data.getString("userimage");
+			    	personName = login_data.getString("username");
+			    	email = login_data.getString("useremail");
+			    	location = login_data.getString("userloction");
+			    	sports = login_data.getString("usersports");
 
+			    	Log.e(TAG, "Location:" +location +"personname" +personName + 
+			    			"email" + email + "image url" +personPhotoUrl + "user sports" +sports);
+			    	openProfile();
+		     }
+		   }
+		 });
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @param mUserData
+	 */
+	private void openProfile(){
+		 Intent intent = new Intent(SignIn.this,Profile.class);
+			intent.putExtra("user_image_url", personPhotoUrl);
+			intent.putExtra("user_name", personName);
+			intent.putExtra("user_email", email);
+			intent.putExtra("user_location", location);
+			intent.putExtra("user_sports", sports);
+			intent.putExtra("user_google_id", google_id);
+			startActivity(intent);
+			finish();
+	}
 	/**
 	 * Updating the UI, showing/hiding buttons and profile layout
 	 * */
@@ -196,7 +321,7 @@ public class SignIn extends Activity implements OnClickListener,
 	/**
 	 * Fetching user's information name, email, profile pic
 	 * */
-	private void getProfileInformation() {
+	public void getProfileInformation() {
 		try {
 			if (Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
 				Person currentPerson = Plus.PeopleApi
@@ -205,13 +330,22 @@ public class SignIn extends Activity implements OnClickListener,
 				personPhotoUrl = currentPerson.getImage().getUrl();
 				String personGooglePlusProfile = currentPerson.getUrl();
 				email = Plus.AccountApi.getAccountName(mGoogleApiClient);
+				location = currentPerson.getCurrentLocation();
+				google_id = currentPerson.getId();
+				
+				SharedPreferences pref_google_id = getSharedPreferences(PREF_GOOGLE, 0);
+				SharedPreferences.Editor edt_id = pref_google_id.edit();
+				edt_id.putString("google_id",google_id);
+				edt_id.commit();
+				
 
-				Log.e(TAG, "Name: " + personName + ", plusProfile: "
+				Log.e(TAG, "ID "+google_id+" Name: " + personName + ", plusProfile: "
 						+ personGooglePlusProfile + ", email: " + email
-						+ ", Image: " + personPhotoUrl);
+						+ ", Image: " + personPhotoUrl + ",Location:" + location);
 
 				txtName.setText(personName);
 				txtEmail.setText(email);
+				
 
 				// by default the profile url gives 50x50 px image only
 				// we can replace the value with whatever dimension we want by
@@ -219,8 +353,11 @@ public class SignIn extends Activity implements OnClickListener,
 				personPhotoUrl = personPhotoUrl.substring(0,
 						personPhotoUrl.length() - 2)
 						+ PROFILE_PIC_SIZE;
-
-				new LoadProfileImage(imgProfilePic).execute(personPhotoUrl);
+				
+				//Save data in parse
+				saveUserData();
+				
+				
 
 			} else {
 				Toast.makeText(getApplicationContext(),
@@ -268,12 +405,13 @@ public class SignIn extends Activity implements OnClickListener,
 	/**
 	 * Sign-in into google
 	 * */
-	private void signInWithGplus() {
+	public void signInWithGplus() {
+		
 		if (!mGoogleApiClient.isConnecting()) {
 			mSignInClicked = true;
 			resolveSignInError();
-			
 		}
+		
 	}
 
 	/**
@@ -283,17 +421,16 @@ public class SignIn extends Activity implements OnClickListener,
 		if (mGoogleApiClient.isConnected()) {
 			Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
 			mGoogleApiClient.disconnect();
-			
-			//mGoogleApiClient.connect();
-			//updateUI(false);
+			 mGoogleApiClient.connect();
 			
 		}
 	}
+	
 
 	/**
 	 * Revoking access from google
 	 * */
-	private void revokeGplusAccess() {
+	public void revokeGplusAccess() {
 		if (mGoogleApiClient.isConnected()) {
 			Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
 			Plus.AccountApi.revokeAccessAndDisconnect(mGoogleApiClient)
@@ -309,32 +446,81 @@ public class SignIn extends Activity implements OnClickListener,
 		}
 	}
 
+	
+	
 	/**
-	 * Background Async task to load user profile picture from url
-	 * */
-	private class LoadProfileImage extends AsyncTask<String, Void, Bitmap> {
-		ImageView bmImage;
+	 * Start Profile Activity Task
+	 */
+	
+	public class StartProfileTask extends AsyncTask<String, String, String> {
+		private Context context;
+		private ProgressDialog progressDialog;
 
-		public LoadProfileImage(ImageView bmImage) {
-			this.bmImage = bmImage;
+		public StartProfileTask(Context context) {
+		    this.context = context;
 		}
 
-		protected Bitmap doInBackground(String... urls) {
-			String urldisplay = urls[0];
-			Bitmap mIcon11 = null;
-			try {
-				InputStream in = new java.net.URL(urldisplay).openStream();
-				mIcon11 = BitmapFactory.decodeStream(in);
-			} catch (Exception e) {
-				Log.e("Error", e.getMessage());
+		@Override
+		protected void onPreExecute() {
+		    progressDialog = new ProgressDialog(context);
+		    progressDialog.setMessage("Loading...");
+		    progressDialog.show();
+		}
+
+		@Override
+		protected String doInBackground(String... params) {
+		    //Do your loading here
+			try{
+				if(!googleLogout && mSignInClicked){
+					mSignInClicked = false;
+					
+					// Get user's information
+					getProfileInformation();
+				}
+			}catch(Exception e){
 				e.printStackTrace();
 			}
-			return mIcon11;
+			
+			
+		    return "finish";
 		}
 
-		protected void onPostExecute(Bitmap result) {
-			bmImage.setImageBitmap(result);
+
+		@Override
+		protected void onPostExecute(String result) {
+		    progressDialog.dismiss();
+		    
+		    Intent intent = new Intent(SignIn.this,Profile.class);
+			intent.putExtra("user_image_url", personPhotoUrl);
+			intent.putExtra("user_name", personName);
+			intent.putExtra("user_email", email);
+			intent.putExtra("user_location", location);
+			startActivity(intent);
+			finish();
 		}
 	}
+	
+	
+	/**
+	 * Save to parse
+	 */
+	public void savetoparse(){
+		
+		login_data = new ParseObject("UserData");
+		login_data.put("user_google_id", google_id);
+		login_data.put("useremail", email);
+		login_data.put("userimage", personPhotoUrl);
+		login_data.put("username",personName);
+		if(location != null)
+			login_data.put("userloction", location);
+		else
+			login_data.put("userloction", "");
+		
+		login_data.saveInBackground();
+		
+		
+	}
+	
+	
 	
 }

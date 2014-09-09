@@ -1,36 +1,37 @@
 package com.sportall.app.main;
 
-import com.sportall.app.view.CircularImageView;
 import com.sportall.app.main.R;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
+
+
+
 		public class CustomList extends ArrayAdapter<String>{
 		private final Activity context;
-		private final String[] web;
+		String toadd;
+		
 		public CustomList(Activity context,
 		
-				String[] web) {
+				String toadd) {
 		
-			super(context, R.layout.sport_row, web);
+			super(context, R.layout.sport_row);
 		
 			this.context = context;
 		
-			this.web = web;
-		
 			
-		
+			
 		}
 		
-		@SuppressLint({ "ViewHolder", "InflateParams" })
-		@Override
-		
-		public View getView(int position, View view, ViewGroup parent) {
+			@SuppressLint({ "ViewHolder", "InflateParams" })
+			@Override
+			
+			public View getView(int position, View view, ViewGroup parent) {
 		
 			LayoutInflater inflater = context.getLayoutInflater();
 		
@@ -38,9 +39,7 @@ import android.widget.TextView;
 		
 			TextView tv_cooment = (TextView) rowView.findViewById(R.id.tv_sport);
 			
-			 tv_cooment.setText(web[position]);
-		
-			
+			tv_cooment.setText(toadd);
 		
 			return rowView;
 		
