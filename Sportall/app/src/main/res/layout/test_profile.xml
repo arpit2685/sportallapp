@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <!-- Header only logo -->
+
+    <include layout="@layout/header_with_logo" />
+    <!-- in a real application you should use styles and dimens... -->
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/header_imageview"
+        android:layout_width="match_parent"
+         android:background="#3f51b5"
+        android:layout_height="130dp"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"
+         />
+
+    <LinearLayout
+        android:id="@+id/informations_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@+id/header_imageview"
+        android:gravity="center"
+        android:paddingTop="28dp"
+        >
+
+
+        <TextView
+            android:id="@+id/userName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textStyle="bold"
+            android:textSize="17sp" />
+        
+        <TextView
+            android:id="@+id/userGender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            
+             />
+
+        <TextView
+            android:id="@+id/user_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:textColor="#FF707070"/>
+        
+        
+
+    </LinearLayout>
+
+
+  <!-- cheat code: negative margin -->
+     <com.sportall.app.views.CircularImageView
+          android:id="@+id/user_image"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/informations_container"
+        android:layout_marginBottom="-20dp" />
+    
+    
+
+</RelativeLayout>
+    
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        
+        android:orientation="vertical" >
+        
+        
+        <TextView
+            android:id="@+id/textVie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="My Location:"
+            android:textStyle="bold"
+            android:textSize="15sp" 
+            android:padding="3dp"/>
+        
+        
+        <LinearLayout android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:orientation="horizontal">
+    
+    <EditText
+        android:id="@+id/city"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/profile_city"
+        android:lines="1"
+        android:imeOptions="actionDone"
+        android:background="@drawable/customborder"
+        android:layout_weight="1"/>
+    
+    <EditText 
+        android:id="@+id/state"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/profile_state"
+        android:lines="1"
+       android:imeOptions="actionDone"
+        android:background="@drawable/customborder"
+        android:layout_weight="1"/>
+    
+    <EditText 
+        android:id="@+id/country"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/profile_country"
+        android:lines="1"
+        android:imeOptions="actionDone"
+        android:background="@drawable/customborder"
+        android:layout_weight="1"/>
+    
+	</LinearLayout>
+        
+    </LinearLayout>
+    
+      
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp" >
+
+        <TextView
+            android:id="@+id/tv_sportsadd"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="My Sports:"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:onClick="showDialog"
+            android:drawableRight="@drawable/add"
+           
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/lv_sport"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" 
+       >
+    </ListView>
+    
+    
+
+</LinearLayout>

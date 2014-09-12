@@ -54,6 +54,7 @@ public class SignIn extends Activity implements OnClickListener,
 	//private GoogleApiClient mGoogleApiClient;
 	public GoogleApiClient mGoogleApiClient;
 
+	
 	/**
 	 * A flag indicating that a PendingIntent is in progress and prevents us
 	 * from starting further intents.
@@ -74,7 +75,7 @@ public class SignIn extends Activity implements OnClickListener,
 	public static final String PREFS_STATUS = "firsttimePrefs";
 	public static final String PREF_GOOGLE = "google_pref";
 	
-	
+	boolean savetoparseYesorNo;
 	//SharedPreferences settings;
 	SharedPreferences firsttimelogin;
 	boolean clicklogout;
@@ -85,11 +86,14 @@ public class SignIn extends Activity implements OnClickListener,
 	String location;
 	String google_id;
 	String sports;
+	int gender;
+	String genderType;
 	
 	private boolean googleLogout;
 	private boolean firsttime = false;
 	private ParseObject login_data;
 	
+	ProgressDialog progressDialogAll;
 	
 	
 
@@ -97,6 +101,8 @@ public class SignIn extends Activity implements OnClickListener,
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.test_signin);
+		
+		
 		
 		if(getIntent().getExtras() != null && getIntent().getExtras().containsKey("user_logout"))
 			googleLogout = getIntent().getExtras().getBoolean("user_logout");
@@ -110,9 +116,9 @@ public class SignIn extends Activity implements OnClickListener,
 		if (settings.getString("logged", "").toString().equals("logged")) {
 			Intent intent = new Intent(SignIn.this, Profile.class);
 			startActivity(intent);
+			SignIn.this.finish();
 		}
 		 
-	
 		
 		btnSignIn = (SignInButton) findViewById(R.id.btn_sign_in);
 		btnSignOut = (Button) findViewById(R.id.btn_sign_out);
@@ -133,8 +139,10 @@ public class SignIn extends Activity implements OnClickListener,
 				.addOnConnectionFailedListener(this).addApi(Plus.API, null)
 				.addScope(Plus.SCOPE_PLUS_LOGIN).build();
 		
+		
 	}
 
+	
 	public void onStart() {
 		super.onStart();
 		mGoogleApiClient.connect();
@@ -170,7 +178,6 @@ public class SignIn extends Activity implements OnClickListener,
 				mGoogleApiClient.connect();
 		}catch(Exception e){
 			e.printStackTrace();
-			
 			
 		}
 		
@@ -247,6 +254,63 @@ public class SignIn extends Activity implements OnClickListener,
 
 	}
 	
+	/**
+	 * Fetching user's information name, email, profile pic
+	 * */
+	public void getProfileInformation() {
+		try {
+			if (Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
+				Person currentPerson = Plus.PeopleApi
+						.getCurrentPerson(mGoogleApiClient);
+				personName = currentPerson.getDisplayName();
+				personPhotoUrl = currentPerson.getImage().getUrl();
+				String personGooglePlusProfile = currentPerson.getUrl();
+				email = Plus.AccountApi.getAccountName(mGoogleApiClient);
+				location = currentPerson.getCurrentLocation();
+				gender = currentPerson.getGender();
+				google_id = currentPerson.getId();
+				
+				if(gender ==0){
+					genderType = "Male";
+				}else {
+					if(gender ==1){
+						genderType = "Female";
+					}else {
+						genderType = "Other";
+					}
+				}
+				
+				SharedPreferences pref_google_id = getSharedPreferences(PREF_GOOGLE, 0);
+				SharedPreferences.Editor edt_id = pref_google_id.edit();
+				edt_id.putString("google_id",google_id);
+				edt_id.commit();
+				
+
+				Log.e(TAG, "ID "+google_id+" Name: " + personName + ", plusProfile: "
+						+ personGooglePlusProfile + ", email: " + email
+						+ ", Image: " + personPhotoUrl + ",Location:" + location +" "+"Gender:" +gender);
+
+
+				// by default the profile url gives 50x50 px image only
+				// we can replace the value with whatever dimension we want by
+				// replacing sz=X
+				personPhotoUrl = personPhotoUrl.substring(0,
+						personPhotoUrl.length() - 2)
+						+ PROFILE_PIC_SIZE;
+				
+				//Save data in parse
+				saveUserData();
+				
+				
+
+			} else {
+				Toast.makeText(getApplicationContext(),
+						"Person information is null", Toast.LENGTH_LONG).show();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	/**
 	 * If user information will retrive from the google+
@@ -254,16 +318,16 @@ public class SignIn extends Activity implements OnClickListener,
 	 * if not then store it to parse database else retrive all data
 	 */
 	private void saveUserData(){
-		 
+		 Log.e(TAG, "query "+google_id);
 		 ParseQuery<ParseObject> query = ParseQuery.getQuery("UserData");
 		 query.whereEqualTo("user_google_id", google_id.trim());
-		 Log.v(TAG, "query "+query.toString()+" "+google_id);
-		 
-		 
 		 query.getFirstInBackground(new GetCallback<ParseObject>() {
 		   public void done(ParseObject login_data, ParseException e) {
-		     if (login_data == null) {
-		       Log.d("Data", "The getFirst request failed."+e.getCode());
+			  
+			   
+		     if (login_data == null)  {
+		       Log.e("Data", "The getFirst request failed."+e.getCode());
+		       
 		       savetoparse();
 		       openProfile();
 		       
@@ -286,6 +350,27 @@ public class SignIn extends Activity implements OnClickListener,
 	}
 	
 	/**
+	 * Save to parse
+	 */
+	public void savetoparse(){
+		
+		
+		 	 login_data = new ParseObject("UserData");
+			login_data.put("user_google_id", google_id);
+			login_data.put("useremail", email);
+			login_data.put("userimage", personPhotoUrl);
+			login_data.put("username",personName);
+			
+			if(location != null)
+				login_data.put("userloction", location);
+			else
+				login_data.put("userloction", "");
+			login_data.put("usersports","");
+			login_data.put("usergender", genderType);
+			login_data.saveInBackground();
+	}
+	
+	/**
 	 * 
 	 * 
 	 * @param mUserData
@@ -298,6 +383,10 @@ public class SignIn extends Activity implements OnClickListener,
 			intent.putExtra("user_location", location);
 			intent.putExtra("user_sports", sports);
 			intent.putExtra("user_google_id", google_id);
+			intent.putExtra("user_gender", genderType);
+			
+			progressDialogAll.dismiss();
+			
 			startActivity(intent);
 			finish();
 	}
@@ -318,55 +407,7 @@ public class SignIn extends Activity implements OnClickListener,
 		}
 	}
 
-	/**
-	 * Fetching user's information name, email, profile pic
-	 * */
-	public void getProfileInformation() {
-		try {
-			if (Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
-				Person currentPerson = Plus.PeopleApi
-						.getCurrentPerson(mGoogleApiClient);
-				personName = currentPerson.getDisplayName();
-				personPhotoUrl = currentPerson.getImage().getUrl();
-				String personGooglePlusProfile = currentPerson.getUrl();
-				email = Plus.AccountApi.getAccountName(mGoogleApiClient);
-				location = currentPerson.getCurrentLocation();
-				google_id = currentPerson.getId();
-				
-				SharedPreferences pref_google_id = getSharedPreferences(PREF_GOOGLE, 0);
-				SharedPreferences.Editor edt_id = pref_google_id.edit();
-				edt_id.putString("google_id",google_id);
-				edt_id.commit();
-				
-
-				Log.e(TAG, "ID "+google_id+" Name: " + personName + ", plusProfile: "
-						+ personGooglePlusProfile + ", email: " + email
-						+ ", Image: " + personPhotoUrl + ",Location:" + location);
-
-				txtName.setText(personName);
-				txtEmail.setText(email);
-				
-
-				// by default the profile url gives 50x50 px image only
-				// we can replace the value with whatever dimension we want by
-				// replacing sz=X
-				personPhotoUrl = personPhotoUrl.substring(0,
-						personPhotoUrl.length() - 2)
-						+ PROFILE_PIC_SIZE;
-				
-				//Save data in parse
-				saveUserData();
-				
-				
-
-			} else {
-				Toast.makeText(getApplicationContext(),
-						"Person information is null", Toast.LENGTH_LONG).show();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	
 
 	@Override
 	public void onConnectionSuspended(int arg0) {
@@ -391,14 +432,7 @@ public class SignIn extends Activity implements OnClickListener,
 			// Signin button clicked
 			signInWithGplus();
 			break;
-		case R.id.btn_sign_out:
-			// Signout button clicked
-			signOutFromGplus();
-			break;
-		case R.id.btn_revoke_access:
-			// Revoke access button clicked
-			revokeGplusAccess();
-			break;
+		
 		}
 	}
 
@@ -406,6 +440,10 @@ public class SignIn extends Activity implements OnClickListener,
 	 * Sign-in into google
 	 * */
 	public void signInWithGplus() {
+		progressDialogAll = new ProgressDialog(SignIn.this);
+		progressDialogAll.setMessage("Loading...");
+		progressDialogAll.setCancelable(false);
+		progressDialogAll.show();
 		
 		if (!mGoogleApiClient.isConnecting()) {
 			mSignInClicked = true;
@@ -446,81 +484,4 @@ public class SignIn extends Activity implements OnClickListener,
 		}
 	}
 
-	
-	
-	/**
-	 * Start Profile Activity Task
-	 */
-	
-	public class StartProfileTask extends AsyncTask<String, String, String> {
-		private Context context;
-		private ProgressDialog progressDialog;
-
-		public StartProfileTask(Context context) {
-		    this.context = context;
-		}
-
-		@Override
-		protected void onPreExecute() {
-		    progressDialog = new ProgressDialog(context);
-		    progressDialog.setMessage("Loading...");
-		    progressDialog.show();
-		}
-
-		@Override
-		protected String doInBackground(String... params) {
-		    //Do your loading here
-			try{
-				if(!googleLogout && mSignInClicked){
-					mSignInClicked = false;
-					
-					// Get user's information
-					getProfileInformation();
-				}
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-			
-			
-		    return "finish";
-		}
-
-
-		@Override
-		protected void onPostExecute(String result) {
-		    progressDialog.dismiss();
-		    
-		    Intent intent = new Intent(SignIn.this,Profile.class);
-			intent.putExtra("user_image_url", personPhotoUrl);
-			intent.putExtra("user_name", personName);
-			intent.putExtra("user_email", email);
-			intent.putExtra("user_location", location);
-			startActivity(intent);
-			finish();
-		}
-	}
-	
-	
-	/**
-	 * Save to parse
-	 */
-	public void savetoparse(){
-		
-		login_data = new ParseObject("UserData");
-		login_data.put("user_google_id", google_id);
-		login_data.put("useremail", email);
-		login_data.put("userimage", personPhotoUrl);
-		login_data.put("username",personName);
-		if(location != null)
-			login_data.put("userloction", location);
-		else
-			login_data.put("userloction", "");
-		
-		login_data.saveInBackground();
-		
-		
-	}
-	
-	
-	
 }

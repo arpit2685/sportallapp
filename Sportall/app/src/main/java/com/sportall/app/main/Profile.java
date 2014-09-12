@@ -22,14 +22,17 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 /**
@@ -44,7 +47,6 @@ public class Profile extends BaseActivity{
 	private TextView tv_user_email;
 	private ImageView btn_saveProfile;
 	private ListView sports_list;
-	private TextView tv_user_location;
 	
 	EditText ed_city , ed_state , ed_country;
 	
@@ -65,21 +67,15 @@ public class Profile extends BaseActivity{
 	private String userLocation;
 	private String userSports;
 	private String completelocation;
+	private String userGender;
 	
 	//Edittext strings
 	private String User_city;
 	private String User_state;
 	private String User_country;
 	
+
 	
-	//Parse String 
-	private String parse_email;
-	private String parse_name;
-	private String parse_image;
-	private String parse_location;
-	private String parse_sports;
-	
-	private String google_id;
 
 	private TextView tv_addsports;
 	
@@ -90,13 +86,22 @@ public class Profile extends BaseActivity{
     private String selectedSportfromarray = "";
     
     public static final String PREF_GOOGLE = "google_pref";
+    public static final String PREF_UERNAME = "username_pref";
 	
     String google_id_from_preference;
+    
+    ProgressDialog progressDialogAll;
+	private TextView tv_userGender;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.profile);
+		setContentView(R.layout.test_profile);
+		
+		progressDialogAll = new ProgressDialog(Profile.this);
+		progressDialogAll.setMessage("Loading...");
+		progressDialogAll.setCancelable(false);
+		progressDialogAll.show();
 
 		selected_sport_list = new ArrayList<String>();
 		
@@ -108,7 +113,7 @@ public class Profile extends BaseActivity{
 		
 		initViews();
 		
-		fetchSports();
+		
 		
 	}
 	
@@ -129,23 +134,26 @@ public class Profile extends BaseActivity{
 		ed_state = (EditText)findViewById(R.id.state);
 		ed_country = (EditText)findViewById(R.id.country);
 		tv_addsports = (TextView)findViewById(R.id.tv_sportsadd);
+		tv_userGender = (TextView)findViewById(R.id.userGender);
 		
 		spHashMap = new HashMap<String,Boolean>();
 		
+		ed_city.setOnEditorActionListener(new OnEditorActionListener() {
+	       
+
+			@Override
+			  public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				// TODO Auto-generated method stub
+				if (event != null&& (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+	                InputMethodManager in = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+	                in.hideSoftInputFromWindow(ed_city.getApplicationWindowToken(),InputMethodManager.HIDE_NOT_ALWAYS);
+	            }
+	            return false;
+			}
+	    });
 		
-		   
-	    
-	    //Getting user Detail from parse
-	    userDetailfromParse();
-	    
-	    //Set user location if available
-	   // setLocation();
-	    
-	    //Set user sports if avialable
-	   //setUserSports();
-	    
-	   
-	   
+		
+		
 	    tv_addsports.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View arg0) {
@@ -160,7 +168,174 @@ public class Profile extends BaseActivity{
 				updateUserData();
 			}
 		});
+	    
+	    //Getting user Detail from parse every time
+	   userDetailfromParse();
+	    
+	    
 	}
+	
+	
+	
+	/**
+	 * Getting User Data from parse
+	 */
+
+	public void userDetailfromParse(){
+		
+		
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("UserData");
+		 query.whereEqualTo("user_google_id", google_id_from_preference.trim());
+		
+		 
+		 query.getFirstInBackground(new GetCallback<ParseObject>() {
+		   
+
+		public void done(final ParseObject login_data, ParseException e) {
+		     if (login_data == null) {
+		       Log.d("Data", "The getFirst request failed. in profile"+e.getCode());
+		       
+		       try{
+		    	   Intent in = getIntent();        
+				    user_img_url = in.getStringExtra("user_image_url");
+				    userName  = in.getStringExtra("user_name");
+				    
+				    SharedPreferences usernameSlider = getSharedPreferences(PREF_UERNAME, 0);
+					SharedPreferences.Editor edt = usernameSlider.edit();
+					edt.putString("userName", userName);
+					edt.commit();
+					
+				    userEmail = in.getStringExtra("user_email");
+				    userLocation = in.getStringExtra("user_location");
+				    userSports = in.getStringExtra("user_sports");
+				    userGender = in.getStringExtra("user_gender");
+		       }catch(Exception ee){
+		    	   ee.printStackTrace();
+		       }
+		       
+		       
+		     } else {
+		    	  userEmail = login_data.getString("useremail");
+		    	  userName = login_data.getString("username");
+		    	  
+
+		 		SharedPreferences usernameSlider = getSharedPreferences(PREF_UERNAME, 0);
+				SharedPreferences.Editor edt = usernameSlider.edit();
+				edt.putString("userName", userName);
+				edt.commit();
+		    	  
+		    	  user_img_url = login_data.getString("userimage");
+		    	  userLocation = login_data.getString("userloction");
+		    	  userSports = login_data.getString("usersports");
+		    	  userGender = login_data.getString("usergender");
+		    	 
+		     }
+		     
+		     if(userName != null)
+			    	tv_userName.setText(userName);
+			    //Log.v("from parse", parse_name);
+			    if(userEmail != null)
+			    	tv_user_email.setText(userEmail);
+			   // Log.v("from parse",parse_email);
+			    
+			    tv_userGender.setText(userGender);
+			    
+			    //Set user location if available
+			    setLocation();
+			    
+			  //Set user sports if available
+			    setUserSports();
+			    
+			    new DownloadImageTask(userImageView).execute(user_img_url);
+			    
+			    fetchSports();
+			 progressDialogAll.dismiss();
+		   }
+		
+		
+		 });
+		
+	}
+	/**
+	 * Getting Location from the Parse
+	 */
+	private void setLocation(){
+		
+		if(userLocation != null && userLocation.length() > 0){
+			 String [] parselocation_array = userLocation.split(",");
+			 if(parselocation_array != null && parselocation_array.length > 0){
+				 String City_rec = parselocation_array[0];
+		    	 String State_rec = parselocation_array[1];
+		    	 String Country_rec = parselocation_array[2];
+		    	 
+		    	 ed_city.setText(City_rec);
+		    	 ed_state.setText(State_rec);
+		    	 ed_country.setText(Country_rec);
+			 }
+	    	
+		}
+		
+		if(userSports != null && userSports.length() > 0){
+			String [] sports = userSports.split(",");
+			if(sports != null){
+				for(int index = 0;index < sports.length;index++){
+					spHashMap.put(sports[index], true);
+				}
+			}
+		}
+	}
+	
+	public void fetchSports(){
+		  ParseQuery<ParseObject> query = ParseQuery.getQuery("UserSports");
+		try {
+			List<ParseObject> spList = query.find();
+			if(spList != null && spList.size() > 0){
+				items = new String[spList.size()];
+				checkedItems = new boolean[spList.size()];
+				for(int index = 0;index < spList.size();index++){
+					items[index] = spList.get(index).getString("usersports");
+					Log.v("Sports", items[index]);
+					checkedItems[index] = spHashMap.containsKey(items[index]);
+				}
+			} 
+			
+		
+		   
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		Log.e("SP List", ""+spHashMap.toString());
+	}
+	
+	
+	/**
+	 * set User Sport
+	 * 
+	 */
+	
+	public void setUserSports(){
+		if(userSports != null && userSports.length() > 0){
+			Log.v("i am here", "in if condition true");
+			String [] parsesports_array = userSports.split(",");
+			 if(parsesports_array != null && parsesports_array.length > 0){
+				 Log.v("i am here", "in if checking array");
+				 Log.v("i am here", ""+parsesports_array.length);
+				 
+				 int size = parsesports_array.length;
+				 user_sports_from_parse.clear();
+				 
+				 for(int index=0; index<size; index++){
+					 
+					 selectedSportfromarray =  selectedSportfromarray + parsesports_array[index];
+					 
+					 user_sports_from_parse.add(parsesports_array[index]);
+				 }
+				 
+				 populateSportList_fromparse();
+			 }
+		}
+	}
+	
 	
 	/**
 	 * 
@@ -199,9 +374,7 @@ public class Profile extends BaseActivity{
 	
 	
 	/**
-	 * 
 	 * Custom Adapter for Sports list
-	 *
 	 */
 	
 	public class SportsList extends ArrayAdapter<String>{
@@ -232,67 +405,7 @@ public class Profile extends BaseActivity{
 		}
 		}
 	
-	/**
-	 * Getting Location from the Parse
-	 */
-	private void setLocation(){
-		
-		if(parse_location != null && parse_location.length() > 0){
-			 String [] parselocation_array = parse_location.split(",");
-			 if(parselocation_array != null && parselocation_array.length > 0){
-				 String City_rec = parselocation_array[0];
-		    	 String State_rec = parselocation_array[1];
-		    	 String Country_rec = parselocation_array[2];
-		    	 
-		    	 ed_city.setText(City_rec);
-		    	 ed_state.setText(State_rec);
-		    	 ed_country.setText(Country_rec);
-			 }
-	    	
-		}
-		
-		if(parse_sports != null && parse_sports.length() > 0){
-			String [] sports = parse_sports.split(",");
-			if(sports != null){
-				for(int index = 0;index < sports.length;index++){
-					spHashMap.put(sports[0], true);
-					spHashMap.put(sports[index], true);
-				}
-			}
-		}
-	}
 	
-	
-	/**
-	 * set User Sport
-	 * 
-	 */
-	
-	public void setUserSports(){
-		if(parse_sports != null && parse_sports.length() > 0){
-			Log.v("i am here", "in if condition true");
-			String [] parsesports_array = parse_sports.split(",");
-			 if(parsesports_array != null && parsesports_array.length > 0){
-				 Log.v("i am here", "in if checking array");
-				 Log.v("i am here", ""+parsesports_array.length);
-				 
-				 int size = parsesports_array.length;
-				 user_sports_from_parse.clear();
-				 
-				 for(int index=0; index<size; index++){
-					 
-					 selectedSportfromarray =  selectedSportfromarray + parsesports_array[index];
-					 
-					 user_sports_from_parse.add(parsesports_array[index]);
-				 }
-				 
-				 populateSportList_fromparse();
-								 
-			 }
-			
-		}
-		
-	}
 	
 	
 	/**
@@ -335,8 +448,6 @@ public class Profile extends BaseActivity{
             	populateSportList();
             }
         });
-    	
-    	
     	
     	builder.setMultiChoiceItems(items, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
 			@Override
@@ -387,54 +498,8 @@ public class Profile extends BaseActivity{
 		else{
 			//updateToParse();
 			new SaveUserDataToParse(Profile.this).execute("update userdata");
-			
 		}
-			
-			
 	}
-	
-	/**
-	 * Update data to parse Database, when fields are not blank
-	 */
-	private void updateToParse(){
-		 ParseQuery<ParseObject> query = ParseQuery.getQuery("UserData");
-		 query.whereEqualTo("user_google_id", google_id_from_preference.trim());
-		
-		 
-		 query.getFirstInBackground(new GetCallback<ParseObject>() {
-		   public void done(final ParseObject login_data, ParseException e) {
-		     if (login_data == null) {
-		       Log.d("Data", "The getFirst request failed."+e.getCode());
-		       
-		     } else {
-		 			    	    
-		    		
-		    	  login_data.put("userloction", completelocation);
-		    	  
-		    	 
-		    	  if(!selected_sport_list.isEmpty()){
-		    		  String completeSports = null;
-		    		  for(int i=0; i<selected_sport_list.size();i++){
-		    			  
-		    			  if(completeSports != null)
-		    				  completeSports = completeSports + selected_sport_list.get(i)+",";
-		    			  else
-		    				  completeSports =  selected_sport_list.get(i)+",";
-		    		  }
-		    			  
-		    		  
-		    		  login_data.put("usersports",completeSports );
-		  		  }
-		    	  
-		    	  login_data.saveInBackground();
-		    	  Toast.makeText(getApplicationContext(), "User data saved successfully", Toast.LENGTH_SHORT).show();
-		    	
-		     }
-		   }
-		 });
-	}
-	
-	
 	
 	
 	/**
@@ -465,105 +530,10 @@ public class Profile extends BaseActivity{
 		protected void onPostExecute(Bitmap result) {
 			bmImage.setImageBitmap(result);
 		}
-
-	}
-	
-	public void fetchSports(){
-		  ParseQuery<ParseObject> query = ParseQuery.getQuery("UserSports");
-		try {
-			List<ParseObject> spList = query.find();
-			if(spList != null && spList.size() > 0){
-				items = new String[spList.size()];
-				checkedItems = new boolean[spList.size()];
-				for(int index = 0;index < spList.size();index++){
-					items[index] = spList.get(index).getString("usersports");
-					Log.v("Sports", items[index]);
-					checkedItems[index] = spHashMap.containsKey(items[index]);
-				}
-			} 
-			
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		
-		
-	}
-	
-	/**
-	 * Getting User Data from parse
-	 */
-
-	public void userDetailfromParse(){
-		
-		
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("UserData");
-		 query.whereEqualTo("user_google_id", google_id_from_preference.trim());
-		
-		 
-		 query.getFirstInBackground(new GetCallback<ParseObject>() {
-		   
-
-		public void done(final ParseObject login_data, ParseException e) {
-		     if (login_data == null) {
-		       Log.d("Data", "The getFirst request failed."+e.getCode());
-		       
-		       try{
-		    	   Intent in = getIntent();        
-				    user_img_url = in.getStringExtra("user_image_url");
-				    userName  = in.getStringExtra("user_name");
-				    userEmail = in.getStringExtra("user_email");
-				    google_id = in.getStringExtra("user_google_id");
-				    userLocation = in.getStringExtra("user_location");
-				    userSports = in.getStringExtra("user_sports");
-				    
-				    
-				    if(userName != null)
-				    	tv_userName.setText(userName);
-				    //Log.v("from parse", parse_name);
-				    if(userEmail != null)
-				    	tv_user_email.setText(userEmail);
-				   // Log.v("from parse",parse_email);
-				    
-				    new DownloadImageTask(userImageView).execute(user_img_url);
-				    
-		       }catch(Exception ee){
-		    	   ee.printStackTrace();
-		       }
-		       
-		       
-		     } else {
-		    	  parse_email = login_data.getString("useremail");
-		    	  parse_name = login_data.getString("username");
-		    	  parse_image = login_data.getString("userimage");
-		    	  parse_location = login_data.getString("userloction");
-		    	  parse_sports = login_data.getString("usersports");
-		    	  Log.v("Datafromparse", "UserEmail:" +parse_email +" "+"Username:" +parse_name 
-		    			  +" "+"UserImage:" +parse_image +"Userlocation:" +parse_location +"Usersports" +parse_sports);
-		    	 
-		    	  
-		    	  if(parse_name != null)
-		  	    	tv_userName.setText(parse_name);
-		  	    //Log.v("from parse", parse_name);
-		  	    if(parse_email != null)
-		  	    	tv_user_email.setText(parse_email);
-		  	    
-		  	//Set user location if available
-			    setLocation();
-			    
-			    //Set user sports if avialable
-			   setUserSports();
-		  	    
-		  	    
-		  	  new DownloadImageTask(userImageView).execute(parse_image);
-		     }
-		     
-		   }
-		 });
-		
 	}
 	
 	
-
+	
 	/**
 	 * Save User Data on Click of Save Button Task
 	 */
@@ -629,6 +599,12 @@ public class Profile extends BaseActivity{
 		    Toast.makeText(getApplicationContext(), "Your Data has been successfully Saved", Toast.LENGTH_SHORT).show();
 		   
 		}
+	}
+	
+	
+	public void showinAlert(){
+		
+		
 	}
 	
 }
