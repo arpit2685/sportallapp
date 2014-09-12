@@ -72,6 +72,8 @@ public class SignIn extends Activity implements OnClickListener,
 	private LinearLayout llProfileLayout;
 	
 	public static final String PREFS_NAME = "LoginPrefs";
+	public static final String PREF_UERNAME = "username_pref";
+	
 	public static final String PREFS_STATUS = "firsttimePrefs";
 	public static final String PREF_GOOGLE = "google_pref";
 	
@@ -284,6 +286,12 @@ public class SignIn extends Activity implements OnClickListener,
 				SharedPreferences.Editor edt_id = pref_google_id.edit();
 				edt_id.putString("google_id",google_id);
 				edt_id.commit();
+				
+				 SharedPreferences usernameSlider = getSharedPreferences(PREF_UERNAME, 0);
+					SharedPreferences.Editor edt = usernameSlider.edit();
+					edt.putString("userName", personName);
+					edt.commit();
+					
 				
 
 				Log.e(TAG, "ID "+google_id+" Name: " + personName + ", plusProfile: "

@@ -40,6 +40,7 @@ public class SlidingLeftMenuFragment extends Fragment {
 	String username_toshow;
 	
 	SharedPreferences setting_user;
+	public static final String PREF_UERNAME = "username_pref";
 	
 	public static final String PREFS_NAME = "LoginPrefs";
 	private ListView menuList = null;
@@ -48,8 +49,7 @@ public class SlidingLeftMenuFragment extends Fragment {
 	//private GoogleApiClient mGoogleApiClient;
 		public GoogleApiClient mGoogleApiClient;
 		private String personName;
-	
-	
+		String user_name_received;
 	
 	
 	/**
@@ -59,9 +59,12 @@ public class SlidingLeftMenuFragment extends Fragment {
 		View view =  inflater.inflate(R.layout.list, null);
 		
 		name = (TextView) view.findViewById(R.id.rec_username);
-		/*setting_user = getActivity().getSharedPreferences(PREFS_UERNAME, 0);
-		setting_user.getString("UserNamre", personName);*/
-		name.setText("Hi");
+		
+		SharedPreferences usernameSlider = getActivity().getSharedPreferences(PREF_UERNAME, 0);
+		user_name_received = usernameSlider.getString("userName", "");
+		Log.v("check slider", user_name_received);
+		
+		name.setText("Hi"+" "+user_name_received);
 		
 		
 		menuList = (ListView) view.findViewById(R.id.menuListview);
